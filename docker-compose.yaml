@@ -31,7 +31,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      restart:always
+      restart: always
   kibana:
     image: docker.elastic.co/kibana/kibana:8.0.0  # Убедитесь, что STACK_VERSION задан правильно
     container_name: kibana
@@ -46,4 +46,4 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5601"]
       interval: 10s
-    restart:always
+    restart: always
