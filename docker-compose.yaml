@@ -1,0 +1,49 @@
+version: "3.3"
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.0.0  # Убедитесь, что STACK_VERSION задан правильно
+    container_name: es01
+    environment:
+      - "node.name=es01"
+      - "cluster.name=cluster-ai"
+      - "discovery.type=single-node"
+      - "bootstrap.memory_lock=true"
+      - "xpack.security.enabled=false"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "TZ=Europe/Rome"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - "es-data:/usr/share/elasticsearch/data"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - elk-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cat/health?h=status | grep -q green"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      restart:always
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.0.0  # Убедитесь, что STACK_VERSION задан правильно
+    container_name: kibana
+    depends_on:
+      - elasticsearch
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    networks:
+      - elk-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5601"]
+      interval: 10s
+    restart:always
